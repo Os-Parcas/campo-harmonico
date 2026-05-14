@@ -1,0 +1,418 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+
+:root {
+    /* Paleta Premium Estúdio Áudio */
+    --bg-main: #0B0F19;
+    --bg-surface: #131C2E;
+    --bg-card: #1A263E;
+    --border-color: #263553;
+    
+    --wheel-bg: #131C2E;
+    --wheel-line: #1E2B48;
+    --wheel-rim: #263553;
+    
+    --text-main: #F8FAFC;
+    --text-muted: #94A3B8;
+    --text-dim: #64748B;
+    --text-inactive: #475569;
+    
+    /* Iluminação Funcional (Sem fundos retangulares, apenas glows) */
+    --color-tonic: #3B82F6;       
+    --color-major: #06B6D4;       
+    --color-minor: #8B5CF6;       
+    --color-dim: #F59E0B;         
+    
+    --shadow-premium: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+    --shadow-card: 0 8px 16px -4px rgba(0, 0, 0, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-touch-callout: none; /* Bloqueia o menu de contexto (pop-up ao segurar toque) no iOS Safari */
+    -webkit-user-select: none;   /* Bloqueia seleção acidental de texto no WebKit (iOS) */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent; /* Remove o fundo cinza de toque no iOS */
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    overflow-x: hidden;
+    background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.1) 0%, transparent 70%);
+}
+
+.app-header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.app-header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.75rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.app-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.app-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 720px;
+}
+
+.wheel-section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+/* Ponteiro Tônica */
+.wheel-pointer {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.5));
+}
+
+.wheel-pointer::before {
+    content: '';
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 18px solid var(--color-tonic);
+}
+
+/* BASE ESTÁTICA DO DISCO */
+.wheel-container {
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background-color: var(--wheel-bg);
+    border: 6px solid var(--wheel-rim);
+    box-shadow: var(--shadow-premium), inset 0 0 40px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
+}
+
+/* Geometria: Anéis Concêntricos Fixos */
+.ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid var(--wheel-line);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ring-outer {
+    width: 100%; /* Borda externa principal (já traçada pelo container) */
+    height: 100%;
+    border: none;
+}
+.ring-middle {
+    width: 280px; /* Anel dos Menores */
+    height: 280px;
+}
+.ring-inner {
+    width: 180px; /* Anel do Diminuto */
+    height: 180px;
+}
+
+/* Furo central fixo */
+.hole {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-color: var(--bg-main);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    border: 4px solid var(--wheel-rim);
+    box-shadow: inset 0 6px 16px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hole-inner {
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle, #334155 0%, #0F172A 100%);
+    border-radius: 50%;
+    border: 2px solid #475569;
+}
+
+/* Geometria: Divisórias Radiais Fixas */
+.radial-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.radial-line {
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background-color: var(--wheel-line);
+    left: calc(50% - 1px);
+    top: 0;
+}
+
+/* CAMADA GIRATÓRIA: APENAS OS TEXTOS */
+.wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 5; /* Acima das linhas, abaixo do furo central */
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* A fatia não tem mais background-color retangular.
+   Ocupa exatamente metade da altura e largura contida. */
+.slice {
+    position: absolute;
+    width: 60px;
+    height: 50%; /* 200px de 400px */
+    left: calc(50% - 30px);
+    top: 0;
+    transform-origin: bottom center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+}
+
+/* Rótulos dos Acordes - Design Purista (Glow e Cores, sem retângulos feios) */
+.chord-label {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-inactive);
+    transition: all 0.3s ease;
+}
+
+/* As alturas correspondem precisamente aos anéis geométricos criados (.ring) */
+.major { height: 60px; font-size: 1.65rem; font-weight: 700; margin-top: 5px; } /* Fica no espaço 400->280 */
+.minor { height: 50px; font-size: 1.15rem; font-weight: 600; } /* Espaço 280->180 */
+.dim   { height: 40px; font-size: 0.95rem; font-weight: 600; } /* Espaço 180->100 */
+
+/* Iluminação por Estado Ativo */
+.chord-label.active-tonic {
+    color: #FFFFFF;
+    font-weight: 900;
+    text-shadow: 0 0 15px var(--color-tonic), 0 0 30px var(--color-tonic);
+}
+
+.chord-label.active-major {
+    color: var(--color-major);
+    font-weight: 800;
+    text-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+}
+
+.chord-label.active-minor {
+    color: var(--color-minor);
+    font-weight: 800;
+    text-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+}
+
+.chord-label.active-dim {
+    color: var(--color-dim);
+    font-weight: 800;
+    text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+/* Controles e Dashboard mantidos premium */
+.controls {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem 2rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+}
+
+.btn:hover { 
+    background-color: var(--bg-card); 
+    border-color: var(--color-tonic);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.5);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.dashboard-panel {
+    background-color: var(--bg-surface);
+    padding: 2rem;
+    border-radius: 24px;
+    width: 100%;
+    box-shadow: var(--shadow-premium);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--wheel-line);
+}
+
+.dashboard-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.dashboard-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.chord-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+@media (max-width: 650px) {
+    .chord-grid { grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    .wheel-container { width: 340px; height: 340px; }
+    .ring-middle { width: 238px; height: 238px; }
+    .ring-inner { width: 153px; height: 153px; }
+    .hole { width: 85px; height: 85px; }
+    .major { height: 51px; font-size: 1.4rem; }
+    .minor { height: 42px; font-size: 1.05rem; }
+    .dim { height: 34px; font-size: 0.85rem; }
+}
+
+@media (max-width: 450px) {
+    .chord-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.chord-card {
+    background-color: var(--bg-card);
+    padding: 1rem 0.75rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    text-align: center;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-card);
+}
+
+.chord-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+
+.chord-card.card-tonic { border-color: var(--color-tonic); background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(26, 38, 62, 0.8) 100%); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2); }
+.chord-card.card-major { border-color: rgba(6, 182, 212, 0.4); }
+.chord-card.card-minor { border-color: rgba(139, 92, 246, 0.4); }
+.chord-card.card-dim { border-color: rgba(245, 158, 11, 0.4); }
+
+.chord-deg {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+    padding: 2px 8px;
+    background-color: var(--bg-surface);
+    border-radius: 6px;
+    border: 1px solid var(--wheel-line);
+}
+
+.card-tonic .chord-deg { color: #FFFFFF; background-color: var(--color-tonic); border-color: var(--color-tonic); }
+
+.chord-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--text-main);
+    margin: 0.25rem 0 0.5rem 0;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-tonic .chord-val { color: var(--color-tonic); }
+.card-major .chord-val { color: var(--color-major); }
+.card-minor .chord-val { color: var(--color-minor); }
+.card-dim .chord-val   { color: var(--color-dim); }
+
+.chord-func {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

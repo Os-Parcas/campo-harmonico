@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Aplicativo Web interativo para consulta do Campo Harmônico e Ciclo das Quintas.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Campo Harmônico - Perfeição Geométrica</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>Campo Harmônico</h1>
+        <p>Ciclo de Quintas Dinâmico de Alta Precisão</p>
+    </header>
+
+    <main class="app-main">
+        <section class="wheel-section" aria-label="Disco Interativo">
+            
+            <!-- Ponteiro Central do Topo -->
+            <div class="wheel-pointer" aria-hidden="true"></div>
+            
+            <div class="wheel-container">
+                <!-- Geometria Física Perfeita da Roda (Estática) -->
+                <div class="ring ring-outer"></div>
+                <div class="ring ring-middle"></div>
+                <div class="ring ring-inner"></div>
+                
+                <div class="radial-lines" id="radial-lines">
+                    <!-- Linhas divisórias radiais geradas por JS -->
+                </div>
+                
+                <div class="hole">
+                    <div class="hole-inner"></div>
+                </div>
+
+                <!-- Disco Giratório Apenas com os Textos -->
+                <div class="wheel" id="wheel">
+                    <!-- Fatias de textos injetadas via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section class="controls" aria-label="Controles de Rotação">
+            <button id="btn-left" class="btn" aria-label="Girar para a esquerda">
+                <span class="btn-icon" aria-hidden="true">←</span> Girar
+            </button>
+            <button id="btn-right" class="btn" aria-label="Girar para a direita">
+                Girar <span class="btn-icon" aria-hidden="true">→</span>
+            </button>
+        </section>
+
+        <section class="dashboard-panel" aria-label="Painel Harmônico">
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <span id="panel-title">Dó Maior (C)</span>
+                </div>
+                <div class="dashboard-subtitle">Campo Harmônico Diatônico</div>
+            </div>
+
+            <div class="chord-grid">
+                <!-- Cartão Grau I (Tônica) -->
+                <div class="chord-card card-tonic">
+                    <div class="chord-deg">I</div>
+                    <div class="chord-val" id="val-deg1">C</div>
+                    <div class="chord-func">Tônica</div>
+                </div>
+                <!-- Cartão Grau ii -->
+                <div class="chord-card card-minor">
+                    <div class="chord-deg">ii</div>
+                    <div class="chord-val" id="val-deg2">Dm</div>
+                    <div class="chord-func">Subdom. Menor</div>
+                </div>
+                <!-- Cartão Grau iii -->
+                <div class="chord-card card-minor">
+                    <div class="chord-deg">iii</div>
+                    <div class="chord-val" id="val-deg3">Em</div>
+                    <div class="chord-func">Mediante</div>
+                </div>
+                <!-- Cartão Grau IV -->
+                <div class="chord-card card-major">
+                    <div class="chord-deg">IV</div>
+                    <div class="chord-val" id="val-deg4">F</div>
+                    <div class="chord-func">Subdominante</div>
+                </div>
+                <!-- Cartão Grau V -->
+                <div class="chord-card card-major">
+                    <div class="chord-deg">V</div>
+                    <div class="chord-val" id="val-deg5">G</div>
+                    <div class="chord-func">Dominante</div>
+                </div>
+                <!-- Cartão Grau vi -->
+                <div class="chord-card card-minor">
+                    <div class="chord-deg">vi</div>
+                    <div class="chord-val" id="val-deg6">Am</div>
+                    <div class="chord-func">Relativa Menor</div>
+                </div>
+                <!-- Cartão Grau vii° -->
+                <div class="chord-card card-dim">
+                    <div class="chord-deg">vii°</div>
+                    <div class="chord-val" id="val-deg7">B°</div>
+                    <div class="chord-func">Sensível</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

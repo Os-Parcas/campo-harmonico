@@ -1,0 +1,229 @@
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
+import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as Haptics from 'expo-haptics';
+
+// Definição dos dados
+const CHORDS = [
+  { major: 'C', minor: 'Am', dim: 'B°' },
+  { major: 'G', minor: 'Em', dim: 'F#°' },
+  { major: 'D', minor: 'Bm', dim: 'C#°' },
+  { major: 'A', minor: 'F#m', dim: 'G#°' },
+  { major: 'E', minor: 'C#m', dim: 'D#°' },
+  { major: 'B', minor: 'G#m', dim: 'A#°' },
+  { major: 'Gb', minor: 'Ebm', dim: 'F°' },
+  { major: 'Db', minor: 'Bbm', dim: 'C°' },
+  { major: 'Ab', minor: 'Fm', dim: 'G°' },
+  { major: 'Eb', minor: 'Cm', dim: 'D°' },
+  { major: 'Bb', minor: 'Gm', dim: 'A°' },
+  { major: 'F', minor: 'Dm', dim: 'E°' },
+];
+
+const { width } = Dimensions.get('window');
+const DISC_SIZE = width * 0.85;
+const RADIUS = DISC_SIZE / 2;
+
+export default function App() {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  
+  // Valores animados para rotação e controle do gesto
+  const rotation = useSharedValue(0);
+  const startAngle = useSharedValue(0);
+
+  // Função que atualiza a interface e vibra o celular
+  const handleSnap = (finalAngle: number) => {
+    let index = Math.round(-finalAngle / 30) % 12;
+    if (index < 0) index += 12;
+
+    setSelectedIndex(index);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+  };
+
+  // Configuração do gesto de arrastar o disco atualizada (sem runOnJS importado)
+  const panGesture = Gesture.Pan()
+    .runOnJS(true) // Diz para o Expo rodar o gesto de forma simples no JavaScript
+    .onBegin((e) => {
+      startAngle.value = Math.atan2(e.y - RADIUS, e.x - RADIUS);
+    })
+    .onChange((e) => {
+      const currentAngle = Math.atan2(e.y - RADIUS, e.x - RADIUS);
+      let delta = currentAngle - startAngle.value;
+      
+      let deltaDeg = (delta * 180) / Math.PI;
+
+      if (deltaDeg > 180) deltaDeg -= 360;
+      if (deltaDeg < -180) deltaDeg += 360;
+
+      rotation.value += deltaDeg;
+      startAngle.value = currentAngle;
+    })
+    .onEnd(() => {
+      const snapAngle = Math.round(rotation.value / 30) * 30;
+      rotation.value = withSpring(snapAngle, { damping: 15, stiffness: 100 });
+      handleSnap(snapAngle);
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      <Text style={styles.title}>Campo Harmônico</Text>
+      
+      <View style={styles.discContainer}>
+        {/* Máscara azul de Seleção */}
+        <View style={styles.selectionOverlay} pointerEvents="none" />
+
+        {/* Disco Animado com detecção de Gestos */}
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={[styles.wheel, animatedStyle]}>
+            <View style={styles.hole} pointerEvents="none" />
+
+            {CHORDS.map((item, i) => {
+              const angle = i * 30;
+              return (
+                <View 
+                  key={i} 
+                  style={[styles.slice, { transform: [{ rotate: `${angle}deg` }] }]}
+                  pointerEvents="none"
+                >
+                  <Text style={styles.majorText}>{item.major}</Text>
+                  <Text style={styles.minorText}>{item.minor}</Text>
+                  <Text style={styles.dimText}>{item.dim}</Text>
+                </View>
+              );
+            })}
+          </Animated.View>
+        </GestureDetector>
+      </View>
+
+      {/* Painel de Exibição Inferior */}
+      <View style={styles.infoPanel}>
+        <Text style={styles.infoTitle}>Tonalidade Selecionada</Text>
+        <View style={styles.infoRow}>
+          <View style={styles.infoCol}>
+            <Text style={styles.infoLabel}>Maior</Text>
+            <Text style={styles.infoValue}>{CHORDS[selectedIndex].major}</Text>
+          </View>
+          <View style={styles.infoCol}>
+            <Text style={styles.infoLabel}>Menor Rel.</Text>
+            <Text style={styles.infoValue}>{CHORDS[selectedIndex].minor}</Text>
+          </View>
+          <View style={styles.infoCol}>
+            <Text style={styles.infoLabel}>Diminuto</Text>
+            <Text style={styles.infoValue}>{CHORDS[selectedIndex].dim}</Text>
+          </View>
+        </View>
+      </View>
+    </GestureHandlerRootView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 50,
+    color: '#1C1C1E',
+  },
+  discContainer: {
+    width: DISC_SIZE,
+    height: DISC_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wheel: {
+    width: DISC_SIZE,
+    height: DISC_SIZE,
+    borderRadius: RADIUS,
+    backgroundColor: '#EBDCB9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  hole: {
+    position: 'absolute',
+    width: DISC_SIZE * 0.4,
+    height: DISC_SIZE * 0.4,
+    borderRadius: (DISC_SIZE * 0.4) / 2,
+    backgroundColor: '#F2F2F7',
+    zIndex: 5,
+  },
+  slice: {
+    position: 'absolute',
+    width: 60,
+    height: DISC_SIZE / 2,
+    left: RADIUS - 30,
+    top: 0,
+    alignItems: 'center',
+    paddingTop: 15,
+    transformOrigin: 'bottom center',
+    zIndex: 1,
+  },
+  selectionOverlay: {
+    position: 'absolute',
+    top: -15,
+    width: 80,
+    height: 110,
+    borderWidth: 6,
+    borderColor: '#1A365D',
+    borderRadius: 10,
+    zIndex: 10,
+  },
+  majorText: { fontSize: 24, fontWeight: '900', color: '#1A365D', marginBottom: 2 },
+  minorText: { fontSize: 16, fontWeight: '600', color: '#4A5568', marginBottom: 2 },
+  dimText: { fontSize: 14, color: '#718096' },
+  infoPanel: {
+    marginTop: 60,
+    padding: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    width: '85%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  infoTitle: { 
+    fontSize: 14, 
+    fontWeight: '600', 
+    textAlign: 'center', 
+    color: '#8E8E93', 
+    textTransform: 'uppercase',
+    marginBottom: 16 
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  infoCol: {
+    alignItems: 'center',
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1C1C1E',
+  },
+});
