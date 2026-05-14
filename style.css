@@ -226,10 +226,11 @@ body {
     font-family: 'Outfit', sans-serif;
     color: var(--text-inactive);
     transition: all 0.3s ease;
+    line-height: 1;
 }
 
 /* As alturas correspondem precisamente aos anéis geométricos criados (.ring) */
-.major { height: 60px; font-size: 1.65rem; font-weight: 700; margin-top: 5px; } /* Fica no espaço 400->280 */
+.major { height: 60px; font-size: 1.65rem; font-weight: 700; } /* Alinhado de forma perfeita no espaço 400->280 */
 .minor { height: 50px; font-size: 1.15rem; font-weight: 600; } /* Espaço 280->180 */
 .dim   { height: 40px; font-size: 0.95rem; font-weight: 600; } /* Espaço 180->100 */
 
@@ -332,29 +333,15 @@ body {
 
 .chord-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 0.75rem;
     align-items: stretch;
-}
-
-@media (max-width: 650px) {
-    .chord-grid { grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
-    .wheel-container { width: 340px; height: 340px; }
-    .ring-middle { width: 238px; height: 238px; }
-    .ring-inner { width: 153px; height: 153px; }
-    .hole { width: 85px; height: 85px; }
-    .major { height: 51px; font-size: 1.4rem; }
-    .minor { height: 42px; font-size: 1.05rem; }
-    .dim { height: 34px; font-size: 0.85rem; }
-}
-
-@media (max-width: 450px) {
-    .chord-grid { grid-template-columns: repeat(2, 1fr); }
+    width: 100%;
 }
 
 .chord-card {
     background-color: var(--bg-card);
-    padding: 1rem 0.75rem;
+    padding: 1rem 0.25rem;
     border-radius: 16px;
     border: 1px solid var(--border-color);
     display: flex;
@@ -365,6 +352,8 @@ body {
     text-align: center;
     transition: all 0.2s ease;
     box-shadow: var(--shadow-card);
+    width: 100%;
+    overflow: hidden;
 }
 
 .chord-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
@@ -406,13 +395,54 @@ body {
 .card-dim .chord-val   { color: var(--color-dim); }
 
 .chord-func {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0px;
+    line-height: 1.1;
     min-height: 2.5em;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
 }
+
+/* Responsividade de Alta Precisão */
+@media (max-width: 650px) {
+    .chord-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
+    .wheel-container { width: 340px; height: 340px; }
+    .ring-middle { width: 238px; height: 238px; }
+    .ring-inner { width: 153px; height: 153px; }
+    .hole { width: 85px; height: 85px; }
+    .major { height: 51px; font-size: 1.4rem; }
+    .minor { height: 42px; font-size: 1.05rem; }
+    .dim { height: 34px; font-size: 0.85rem; }
+    .dashboard-panel { padding: 1.5rem; }
+}
+
+@media (max-width: 450px) {
+    .chord-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .chord-card:last-child { grid-column: span 2; }
+    .dashboard-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .controls { gap: 0.75rem; }
+    .btn { padding: 0.75rem 1.5rem; font-size: 0.95rem; }
+}
+
+@media (max-width: 380px) {
+    body { padding: 1.5rem 0.75rem; }
+    .wheel-container { width: 280px; height: 280px; border-width: 4px; }
+    .ring-middle { width: 196px; height: 196px; }
+    .ring-inner { width: 126px; height: 126px; }
+    .hole { width: 70px; height: 70px; border-width: 3px; }
+    .major { height: 42px; font-size: 1.15rem; }
+    .minor { height: 35px; font-size: 0.95rem; }
+    .dim { height: 28px; font-size: 0.75rem; }
+    .dashboard-panel { padding: 1.25rem 1rem; }
+    .app-header h1 { font-size: 2.2rem; }
+    .app-header p { font-size: 0.95rem; }
+}
+

@@ -143,6 +143,17 @@ class HarmonicApp {
                 this.updateUI();
             });
         }
+
+        // Navegação por teclado (Setas Esquerda / Direita)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                this.currentIndex--;
+                this.updateUI();
+            } else if (e.key === 'ArrowRight') {
+                this.currentIndex++;
+                this.updateUI();
+            }
+        });
     }
 }
 
