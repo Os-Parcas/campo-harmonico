@@ -121,6 +121,11 @@ body {
     position: relative;
     overflow: hidden;
     touch-action: none;
+    cursor: grab;
+}
+
+.wheel-container:active {
+    cursor: grabbing;
 }
 
 /* Geometria: Anéis Concêntricos Fixos */

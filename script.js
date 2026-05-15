@@ -19,6 +19,7 @@ class HarmonicApp {
         this.currentIndex = 0;
         
         // Elementos da UI
+        this.wheelContainer = document.querySelector('.wheel-container');
         this.wheelElement = document.getElementById('wheel');
         this.radialLinesContainer = document.getElementById('radial-lines');
         this.panelTitle = document.getElementById('panel-title');
@@ -35,6 +36,11 @@ class HarmonicApp {
         this.btnRight = document.getElementById('btn-right');
 
         this.slicesData = [];
+
+        // Controle de Arraste (Mouse & Touch)
+        this.isDragging = false;
+        this.currentDragRotation = 0;
+        this.lastMouseAngle = 0;
 
         this.init();
     }
@@ -85,6 +91,7 @@ class HarmonicApp {
     // Atualiza a rotação, o painel e a iluminação inteligente
     updateUI() {
         const rotationAngle = -this.currentIndex * 30;
+        this.currentDragRotation = rotationAngle;
         this.wheelElement.style.transform = `rotate(${rotationAngle}deg)`;
 
         const tonicIndex = ((this.currentIndex % 12) + 12) % 12;
@@ -153,6 +160,77 @@ class HarmonicApp {
                 this.currentIndex++;
                 this.updateUI();
             }
+        });
+
+        // ==========================================
+        // GESTÃO DE ARRASTE (MOUSE / TOUCH MOBILE)
+        // ==========================================
+        const startDrag = (clientX, clientY) => {
+            this.isDragging = true;
+            this.wheelElement.style.transition = 'none';
+            
+            const rect = this.wheelContainer.getBoundingClientRect();
+            this.centerX = rect.left + rect.width / 2;
+            this.centerY = rect.top + rect.height / 2;
+
+            this.lastMouseAngle = Math.atan2(clientY - this.centerY, clientX - this.centerX) * (180 / Math.PI);
+            this.currentDragRotation = -this.currentIndex * 30;
+        };
+
+        const onDrag = (clientX, clientY) => {
+            if (!this.isDragging) return;
+
+            const currentAngle = Math.atan2(clientY - this.centerY, clientX - this.centerX) * (180 / Math.PI);
+            let delta = currentAngle - this.lastMouseAngle;
+
+            // Correção para o salto de transição -180 a 180 graus no cálculo trigonométrico
+            if (delta > 180) delta -= 360;
+            else if (delta < -180) delta += 360;
+
+            this.currentDragRotation += delta;
+            this.lastMouseAngle = currentAngle;
+
+            this.wheelElement.style.transform = `rotate(${this.currentDragRotation}deg)`;
+        };
+
+        const stopDrag = () => {
+            if (!this.isDragging) return;
+            this.isDragging = false;
+            this.wheelElement.style.transition = '';
+
+            // Ao soltar, calcula a fatia exata de 30 graus mais próxima para o "snap" suave
+            this.currentIndex = Math.round(-this.currentDragRotation / 30);
+            this.updateUI();
+        };
+
+        // Eventos de Mouse (Desktop)
+        this.wheelContainer.addEventListener('mousedown', (e) => {
+            startDrag(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            onDrag(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('mouseup', () => {
+            stopDrag();
+        });
+
+        // Eventos de Toque (Mobile)
+        this.wheelContainer.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            startDrag(touch.clientX, touch.clientY);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!this.isDragging) return;
+            e.preventDefault(); // Impede a rolagem ou zoom da página ao girar o disco com o dedo
+            const touch = e.touches[0];
+            onDrag(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        document.addEventListener('touchend', () => {
+            stopDrag();
         });
     }
 }
